@@ -1,0 +1,20 @@
+{
+  "name": "node_deploy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "functions/app.js",
+  "scripts": {
+    "build": "netlify deploy --prod",
+    "start": "nodemon functions/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.4.0",
+    "netlify-cli": "^17.23.5",
+    "netlify-lambda": "^2.0.16",
+    "serverless-http": "^3.2.0"
+  }
+}
