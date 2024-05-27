@@ -1,122 +1,69 @@
-# Node Api Deployment In Netlify
+# NodeAPI Deployment Guide on AWS EC2
 
-A repository for deploying Node.js applications seamlessly using Netlify.
+This guide will help you deploy a Node.js API on an AWS EC2 instance. Follow the steps carefully to ensure a smooth deployment.
 
-## Getting Started
+## Prerequisites
 
-Follow these steps to set up and deploy your Node.js application using Netlify.
+1. **AWS Account**: Ensure you have an active AWS account.
+2. **EC2 Instance**: An EC2 instance with the appropriate permissions and security group settings.
+3. **SSH Access**: SSH access to your EC2 instance.
+4. **Node.js & npm**: Node.js and npm should be installed on the EC2 instance.
 
-### Step 1: Initialize a Node Project
+## Step 1: Set Up EC2 Instance
 
-Create a folder for your project and initialize a Node.js project with the following command:
+1. **Launch an EC2 Instance**:
+   - Go to the EC2 Dashboard and click on "Launch Instance".
+   - Select an Amazon Machine Image (AMI). The Ubuntu is a good choice for most purposes.
+   - Choose an Instance Type. The `t2.micro` is sufficient for small applications.
+   - Configure the instance details, storage, tags, and security group. Ensure that port 22 (SSH) and port 80 (HTTP) are open.
+   - Review and launch the instance. Download the key pair (.pem file) if you haven't already.
 
-```bash
-npm init -y
-```
+2. **Connect to Your Instance**:
+   - Open your terminal and navigate to the directory containing your key pair (.pem) file.
+      ```sh
+        chmod 600 your-key-pair.pem
+        ```
+   - Use the following command to connect to your instance:
+     ```sh
+     ssh -i "your-key-pair.pem" ec2-user@your-ec2-public-dns
+     ```
 
-### Step 2: Install Required Dependencies
+## Step 2: Install Node.js and npm
 
-Install the necessary dependencies:
+1. **you will need to install Node and npm**:
+   ```sh
+    sudo apt update
+    sudo apt install nodejs -y
+    sudo apt install npm -y
+   ```
 
-```bash
-npm install express netlify-cli netlify-lambda serverless-http
-```
 
-### Step 3: Add Build Script to `package.json`
+## Step 3: Deploy Your Node.js API
 
-Add the following script to your `package.json` file:
+1. **Clone Your Repository**:
+   - Clone your Node.js API repository:
+     ```sh
+     git clone -b ec2-deploy https://github.com/chhetri123/Node_api_deploy.git
+     cd Node_api_deploy
+     ```
 
-```json
-"scripts": {
-    "build": "netlify deploy --prod"
-}
-```
+2. **Install Dependencies**:
+   ```sh
+   npm install
+   ```
 
-### Step 4: Create Folder Structure
+3. **Start Your Node.js Application**:
+   - You can start your application using:
+     ```sh
+     npm start
+     ```
+  - visit your_public_ip:3000
+## Step 5: Configure Security Group
 
-Create the necessary folder structure for your project:
+1. **Open Ports**:
+   - Ensure your security group allows incoming traffic on the necessary ports (e.g., port 80 for HTTP, port 443 for HTTPS, TCP 3000).
+   - Go to the EC2 Dashboard, select your instance, click on "Security Groups", and edit the inbound rules.
 
-```
-your-project-folder/
-│
-├── functions/
-│   └── app.js
-├── netlify.toml
-└── package.json
-```
+## Conclusion
 
-### Step 5: Create and Configure `app.js`
-
-Create a file named `app.js` inside the `functions` folder and add the following code:
-
-```javascript
-// app.js
-
-const express = require("express");
-const serverless = require("serverless-http");
-const app = express();
-const router = express.Router();
-
-router.get("/", (req, res) => {
-  res.send("App is running..");
-});
-
-app.use("/.netlify/functions/app", router);
-module.exports.handler = serverless(app);
-```
-
-### Step 6: Create and Configure `netlify.toml`
-
-Create a `netlify.toml` file in the root directory and add the following syntax:
-
-```toml
-[build]
-    functions = "functions"
-```
-
-### Step 7: Create `.gitignore` File
-
-Create a `.gitignore` file and add the following entries:
-
-```
-node_modules/
-.netlify
-```
-
-### Step 8: Initialize a Git Repository (for mannual you can skip this step)
-
-Initialize a git repository and commit your changes:
-
-```bash
-git init
-git add .
-git commit -m "initial commit"
-```
-
-### Step 9: Initialize Netlify
-
-Create an account on Netlify, then return to your project and open your terminal. Initialize Netlify:
-
-```bash
-netlify init
-```
-
-### Step 10: Deploy Your Application
-
-Deploy your application to a draft URL:
-
-```bash
-netlify deploy
-```
-
-After the deployment, you will receive a draft URL.
-
-### Step 11: Deploy to Production
-
-To deploy your application to production, use the following command:
-
-```bash
-netlify deploy --prod
-```
-
-Your application is now deployed on Netlify! You can visit the provided URL to see your running application.
+Your Node.js API should now be up and running on your EC2 instance. You can access it through the public DNS or IP address of your EC2 instance. Make sure to secure your application and monitor its performance regularly.
