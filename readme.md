@@ -1,69 +1,76 @@
-# NodeAPI Deployment Guide on AWS EC2
+<!--
+title: 'Serverless Framework Node Express API on AWS'
+description: 'This template demonstrates how to develop and deploy a simple Node Express API running on AWS Lambda using the Serverless Framework.'
+layout: Doc
+framework: v4
+platform: AWS
+language: nodeJS
+priority: 1
+authorLink: 'https://github.com/serverless'
+authorName: 'Serverless, Inc.'
+authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
+-->
 
-This guide will help you deploy a Node.js API on an AWS EC2 instance. Follow the steps carefully to ensure a smooth deployment.
+# Serverless Framework Node Express API on AWS
 
-## Prerequisites
+This template demonstrates how to develop and deploy a simple Node Express API service running on AWS Lambda using the Serverless Framework.
 
-1. **AWS Account**: Ensure you have an active AWS account.
-2. **EC2 Instance**: An EC2 instance with the appropriate permissions and security group settings.
-3. **SSH Access**: SSH access to your EC2 instance.
-4. **Node.js & npm**: Node.js and npm should be installed on the EC2 instance.
+This template configures a single function, `api`, which is responsible for handling all incoming requests using the `httpApi` event. To learn more about `httpApi` event configuration options, please refer to [httpApi event docs](https://www.serverless.com/framework/docs/providers/aws/events/http-api/). As the event is configured in a way to accept all incoming requests, the Express.js framework is responsible for routing and handling requests internally. This implementation uses the `serverless-http` package to transform the incoming event request payloads to payloads compatible with Express.js. To learn more about `serverless-http`, please refer to the [serverless-http README](https://github.com/dougmoscrop/serverless-http).
 
-## Step 1: Set Up EC2 Instance
+## Usage
 
-1. **Launch an EC2 Instance**:
-   - Go to the EC2 Dashboard and click on "Launch Instance".
-   - Select an Amazon Machine Image (AMI). The Ubuntu is a good choice for most purposes.
-   - Choose an Instance Type. The `t2.micro` is sufficient for small applications.
-   - Configure the instance details, storage, tags, and security group. Ensure that port 22 (SSH) and port 80 (HTTP) are open.
-   - Review and launch the instance. Download the key pair (.pem file) if you haven't already.
+### Deployment
 
-2. **Connect to Your Instance**:
-   - Open your terminal and navigate to the directory containing your key pair (.pem) file.
-      ```sh
-        chmod 600 your-key-pair.pem
-        ```
-   - Use the following command to connect to your instance:
-     ```sh
-     ssh -i "your-key-pair.pem" ec2-user@your-ec2-public-dns
-     ```
+Install dependencies with:
 
-## Step 2: Install Node.js and npm
+```
+npm install
+```
 
-1. **you will need to install Node and npm**:
-   ```sh
-    sudo apt update
-    sudo apt install nodejs -y
-    sudo apt install npm -y
-   ```
+and then deploy with:
 
+```
+serverless deploy
+```
 
-## Step 3: Deploy Your Node.js API
+After running deploy, you should see output similar to:
 
-1. **Clone Your Repository**:
-   - Clone your Node.js API repository:
-     ```sh
-     git clone -b ec2-deploy https://github.com/chhetri123/Node_api_deploy.git
-     cd Node_api_deploy
-     ```
+```
+Deploying "aws-node-express-api" to stage "dev" (us-east-1)
 
-2. **Install Dependencies**:
-   ```sh
-   npm install
-   ```
+✔ Service deployed to stack aws-node-express-api-dev (96s)
 
-3. **Start Your Node.js Application**:
-   - You can start your application using:
-     ```sh
-     npm start
-     ```
-  - visit your_public_ip:3000
-## Step 5: Configure Security Group
+endpoint: ANY - https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com
+functions:
+  api: aws-node-express-api-dev-api (2.3 kB)
+```
 
-1. **Open Ports**:
-   - Ensure your security group allows incoming traffic on the necessary ports (e.g., port 80 for HTTP, port 443 for HTTPS, TCP 3000).
-   - Go to the EC2 Dashboard, select your instance, click on "Security Groups", and edit the inbound rules.
+_Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [`httpApi` event docs](https://www.serverless.com/framework/docs/providers/aws/events/http-api/).
 
-## Conclusion
+### Invocation
 
-Your Node.js API should now be up and running on your EC2 instance. You can access it through the public DNS or IP address of your EC2 instance. Make sure to secure your application and monitor its performance regularly.
+After successful deployment, you can call the created application via HTTP:
+
+```
+curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/
+```
+
+Which should result in the following response:
+
+```json
+{ "message": "Hello from root!" }
+```
+
+### Local development
+
+The easiest way to develop and test your function is to use the `dev` command:
+
+```
+serverless dev
+```
+
+This will start a local emulator of AWS Lambda and tunnel your requests to and from AWS Lambda, allowing you to interact with your function as if it were running in the cloud.
+
+Now you can invoke the function as before, but this time the function will be executed locally. Now you can develop your function locally, invoke it, and see the results immediately without having to re-deploy.
+
+When you are done developing, don't forget to run `serverless deploy` to deploy the function to the cloud.
